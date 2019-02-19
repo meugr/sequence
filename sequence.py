@@ -39,7 +39,8 @@ def find_sequence(sequence, sequence_reverse,
                  comp_sequence_reverse]
     for i in sequences:
         if start in i and end in i:
-            return (i.split(start))[1].split(end)[0]
+            if i.count(start) == 1 and i.count(end) == 1:
+                return (i.split(start))[1].split(end)[0]
 
 
 def write_in_output_file(output_sequence_list):
@@ -110,4 +111,4 @@ for filename in filename_list:
 
 write_in_output_file(output_sequence_list)
 write_in_error_file(output_error_list)
-print('Готово!')
+print('Готово!', len(output_sequence_list))
