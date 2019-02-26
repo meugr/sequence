@@ -1,4 +1,4 @@
-# ver 1.1
+# ver 1.2
 # Получение последовательности нуклеотидов между двумя заданными
 # последовательностями. Обрабатывает заданную, комплиментарную и
 # обратные им последовательности.
@@ -52,9 +52,14 @@ def search(seq, subseq):
             return start
 
 
-def find_sequence(sequence, sequence_reverse,
-                  comp_sequence, comp_sequence_reverse,
-                  start, end):
+def sequence_processing(sequence, sequence_reverse,
+                        comp_sequence, comp_sequence_reverse,
+                        start, end):
+    """
+    Обработка последовательности. Возвращает последовательность,
+    Индекс начала, индекс конца, тип последовательности,
+    количество неоднозначных нуклеотидов.
+    """
     sequences = (sequence, sequence_reverse, comp_sequence,
                  comp_sequence_reverse)
     seq_type = -1
@@ -69,13 +74,13 @@ def find_sequence(sequence, sequence_reverse,
                 cou = i[seq_start: seq_end + len(end)].count(c)
                 total_cou += cou
             final_seq = i[seq_start: seq_end + len(end)]
-            return final_seq, seq_start, seq_end,\
+            return final_seq, seq_start, seq_end + len(end),\
                 seq_type, len(final_seq) - total_cou
 
 
 def write_in_output_file(output_sequence_list):
     """
-    Запись списка полученых в find_sequence() последовательностей в файл
+    Запись списка полученых в sequence_processing() последовательностей в файл
     output.fasta
     """
     with open("output.fasta", "w") as file:
@@ -131,9 +136,10 @@ for filename in filename_list:
     comp_sequence = make_complimentary(sequence)
     comp_sequence_reverse = comp_sequence[::-1]
 
-    sequence_find_info = find_sequence(sequence, sequence_reverse,
-                                       comp_sequence, comp_sequence_reverse,
-                                       start, end)
+    sequence_find_info = sequence_processing(sequence, sequence_reverse,
+                                             comp_sequence,
+                                             comp_sequence_reverse,
+                                             start, end)
 
     if sequence_find_info:
         # сбор данных для description
