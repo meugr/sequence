@@ -1,3 +1,4 @@
+# ver 1.0
 # Получение последовательности нуклеотидов между двумя заданными
 # последовательностями. Обрабатывает заданную, комплиментарную и
 # обратные им последовательности.
@@ -6,6 +7,7 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from os import listdir, path
+from Bio.Data import IUPACData
 
 
 def get_sequence(path_file):
@@ -28,19 +30,39 @@ def make_complimentary(sequence):
     return sequence.complement()
 
 
+def search(seq, subseq):
+    """Находит в последовательности с неопределенностями нужную
+    фланкирующую последовательность, возвращает ее и порядковый номер ее
+    начала, начиная с нуля.
+    """
+    dataset = []
+    subseq = list(subseq)
+    for nt in seq:
+        value = IUPACData.ambiguous_dna_values[nt]
+        dataset.append(set(value))
+
+    for start in range(len(dataset)):
+        for offset in range(len(subseq)):
+            try:
+                if subseq[offset] not in dataset[start + offset]:
+                    break
+            except IndexError:
+                break
+        else:
+            return start
+
+
 def find_sequence(sequence, sequence_reverse,
                   comp_sequence, comp_sequence_reverse,
                   start, end):
-    """
-    Находит последовательность, заключенную между двумя данными - start и end.
-    Возвращает строку-последовательность нуклеотидов
-    """
-    sequences = [sequence, sequence_reverse, comp_sequence,
-                 comp_sequence_reverse]
+    sequences = (sequence, sequence_reverse, comp_sequence,
+                 comp_sequence_reverse)
     for i in sequences:
-        if start in i and end in i:
-            if i.count(start) == 1 and i.count(end) == 1:
-                return (i.split(start))[1].split(end)[0]
+        seq_start = search(str(i), start)
+        seq_end = search(str(i), end)
+        if seq_start and seq_end:
+            print(seq_start, seq_end)
+            return i[seq_start: seq_end + len(end)]
 
 
 def write_in_output_file(output_sequence_list):
@@ -50,9 +72,6 @@ def write_in_output_file(output_sequence_list):
     """
     with open("output.fasta", "w") as file:
         SeqIO.write(output_sequence_list, file, "fasta")
-    #with open("output.txt", "w") as file:
-    #    for i in output_sequence_list:
-    #        file.write(start + str(i) + end + '\n')
 
 
 def write_in_error_file(output_error_list):
