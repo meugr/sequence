@@ -20,4 +20,4 @@
 
 ### Windows
 - Скачайте и установите интерпретатор `python` с официального сайта [python.org](python.org)
-- откройте `cmd`  и наберите там `python -m pip install biopython` 
+- откройте `cmd`  и наберите там `python -m pip install -r requirements.txt` 
